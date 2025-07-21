@@ -31,6 +31,10 @@ public class AppOpenManager implements LifecycleObserver {
         ProcessLifecycleOwner.get().getLifecycle().addObserver(this);
     }
 
+    public void setCurrentActivity(Activity activity) {
+        this.currentActivity = activity;
+    }
+
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
     public void onStart() {
         showAdIfAvailable();
@@ -47,11 +51,12 @@ public class AppOpenManager implements LifecycleObserver {
                     public void onAdLoaded(AppOpenAd ad) {
                         AppOpenManager.this.appOpenAd = ad;
                         AppOpenManager.this.loadTime = (new Date()).getTime();
+                        Log.d(LOG_TAG, "AppOpenAd loaded successfully");
                     }
 
                     @Override
                     public void onAdFailedToLoad(LoadAdError loadAdError) {
-                        // Handle the error.
+                        Log.e(LOG_TAG, "AppOpenAd failed to load: " + loadAdError.getMessage());
                     }
                 };
         AdRequest request = getAdRequest();
@@ -75,6 +80,11 @@ public class AppOpenManager implements LifecycleObserver {
     }
 
     public void showAdIfAvailable() {
+        if (currentActivity == null) {
+            Log.d(LOG_TAG, "No current activity, cannot show ad.");
+            return;
+        }
+        
         if (!isShowingAd && isAdAvailable()) {
             Log.d(LOG_TAG, "Will show ad.");
             FullScreenContentCallback fullScreenContentCallback =
@@ -88,6 +98,10 @@ public class AppOpenManager implements LifecycleObserver {
 
                         @Override
                         public void onAdFailedToShowFullScreenContent(AdError adError) {
+                            Log.e(LOG_TAG, "Failed to show ad: " + adError.getMessage());
+                            AppOpenManager.this.appOpenAd = null;
+                            isShowingAd = false;
+                            fetchAd();
                         }
 
                         @Override
@@ -98,7 +112,7 @@ public class AppOpenManager implements LifecycleObserver {
             appOpenAd.setFullScreenContentCallback(fullScreenContentCallback);
             appOpenAd.show(currentActivity);
         } else {
-            Log.d(LOG_TAG, "Can not show ad.");
+            Log.d(LOG_TAG, "Ad not available. Fetching new ad.");
             fetchAd();
         }
     }
