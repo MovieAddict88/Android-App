@@ -5,7 +5,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-
+import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.cinecraze.Ads.AdIdManager;
@@ -54,12 +54,12 @@ public class MainActivity extends AppCompatActivity {
         videoRewardAdManager = new VideoRewardAdManager(this, new VideoRewardAdManager.AdListener() {
             @Override
             public void onAdClosed() {
-                // Handle ad closed event
+                Log.d("RewardedAd", "Ad closed");
             }
 
             @Override
             public void onUserEarnedReward() {
-                // Handle user earned reward event
+                Log.d("RewardedAd", "Reward earned");
             }
         });
 
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setMediaPlaybackRequiresUserGesture(false);
         webSettings.setDomStorageEnabled(true);
         webSettings.setAllowFileAccess(true);
-        webSettings.setSupportMultipleWindows(true); // Changed to true for video popups
+        webSettings.setSupportMultipleWindows(true);
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         webSettings.setLoadsImagesAutomatically(true);
@@ -91,6 +91,19 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 
         webView.loadUrl("https://movie-fcs.fwh.is/cini/");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        appOpenManager.setCurrentActivity(this);
+        appOpenManager.showAdIfAvailable();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        appOpenManager.setCurrentActivity(null);
     }
 
     @Override
@@ -117,13 +130,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        appOpenManager.showAdIfAvailable();
-    }
-
     public static MainActivity getInstance() {
-        return (MainActivity) instance;
+        return instance;
     }
 }
