@@ -1,7 +1,6 @@
 package com.cinecraze;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -16,8 +15,12 @@ import android.util.Log;
 
 import androidx.core.content.FileProvider;
 
+import android.view.View;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.shashank.sony.fancydialoglib.Animation;
+import com.shashank.sony.fancydialoglib.FancyAlertDialog;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,11 +63,16 @@ public class UpdateHelper {
     }
 
     private static void showUpdateDialog(final Activity activity, String latestVersion, final String url) {
-        new AlertDialog.Builder(activity)
+        FancyAlertDialog.Builder.with(activity)
                 .setTitle("New Update Available")
                 .setMessage("Version " + latestVersion + " is available. Do you want to update?")
-                .setPositiveButton("Update", (dialog, which) -> downloadAndInstall(activity, url))
-                .setNegativeButton("Cancel", null)
+                .setPositiveBtnText("Update")
+                .setPositiveBtnBackgroundRes(R.color.colorPrimary)
+                .setAnimation(Animation.POP)
+                .isCancellable(false)
+                .setIcon(R.drawable.ic_baseline_exit_to_app_24, View.VISIBLE)
+                .onPositiveClicked(dialog -> downloadAndInstall(activity, url))
+                .build()
                 .show();
     }
 
