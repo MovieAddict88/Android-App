@@ -93,6 +93,9 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 
         webView.loadUrl("https://movie-fcs.fwh.is/cinecraze/");
+
+        // Check for updates
+        UpdateHelper.checkForUpdate(this);
     }
 
     @Override
