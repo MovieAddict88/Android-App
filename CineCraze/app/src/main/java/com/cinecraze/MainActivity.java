@@ -42,14 +42,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         instance = this;
 
-        AdIdManager.loadAdIds(this);
-
-        MobileAds.initialize(this, initializationStatus -> {
-        });
-
         appOpenManager = new AppOpenManager(this);
-        appOpenManager.fetchAd();
-
         interstitialAdManager = new InterstitialAdManager(this, this::finish);
         videoRewardAdManager = new VideoRewardAdManager(this, new VideoRewardAdManager.AdListener() {
             @Override
@@ -63,9 +56,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mAdView = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
+        AdIdManager.loadAdIds(this, () -> runOnUiThread(() -> {
+            MobileAds.initialize(this, initializationStatus -> {
+            });
+
+            appOpenManager.fetchAd();
+            interstitialAdManager.loadAd();
+            videoRewardAdManager.loadAd();
+
+            mAdView = findViewById(R.id.adView);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }));
 
         // Initialize ad blocker before WebView
         AdBlocker.init(this);

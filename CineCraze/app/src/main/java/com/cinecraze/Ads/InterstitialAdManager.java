@@ -26,10 +26,13 @@ public class InterstitialAdManager {
     public InterstitialAdManager(Context context, AdListener adListener) {
         this.context = context;
         this.adListener = adListener;
-        loadAd();
     }
 
     public void loadAd() {
+        if (AdIdManager.getInterstitialAdUnitId() == null) {
+            Log.e(TAG, "Interstitial Ad Unit ID is null. Cannot load ad.");
+            return;
+        }
         AdRequest adRequest = new AdRequest.Builder().build();
         InterstitialAd.load(
                 context,
