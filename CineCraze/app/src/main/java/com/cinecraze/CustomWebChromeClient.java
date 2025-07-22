@@ -48,24 +48,24 @@ public class CustomWebChromeClient extends WebChromeClient {
 
     @Override
     public boolean onCreateWindow(WebView view, boolean isDialog, boolean isUserGesture, Message resultMsg) {
-        // Allow video popups but block others
-        WebView.HitTestResult result = view.getHitTestResult();
-        if (result.getType() == WebView.HitTestResult.UNKNOWN_TYPE) {
-            return false; // Block ad popups
-        }
-        
-        // Handle video player windows
         WebView newWebView = new WebView(view.getContext());
+        newWebView.setWebViewClient(new VideoWebViewClient());
+        newWebView.getSettings().setJavaScriptEnabled(true);
+
         final Dialog dialog = new Dialog(view.getContext());
-        dialog.setContentView(R.layout.video_dialog);
-        WebView videoWebView = dialog.findViewById(R.id.video_webview);
-        videoWebView.setWebViewClient(new VideoWebViewClient());
-        videoWebView.getSettings().setJavaScriptEnabled(true);
-        WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
-        transport.setWebView(videoWebView);
-        resultMsg.sendToTarget();
+        dialog.setContentView(newWebView);
         dialog.show();
-        dialog.findViewById(R.id.close_button).setOnClickListener(v -> dialog.dismiss());
+
+        newWebView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onCloseWindow(WebView window) {
+                dialog.dismiss();
+            }
+        });
+
+        WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
+        transport.setWebView(newWebView);
+        resultMsg.sendToTarget();
         return true;
     }
 }
