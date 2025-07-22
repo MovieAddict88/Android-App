@@ -5,7 +5,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.util.Log;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.cinecraze.Ads.AdIdManager;
@@ -54,12 +54,12 @@ public class MainActivity extends AppCompatActivity {
         videoRewardAdManager = new VideoRewardAdManager(this, new VideoRewardAdManager.AdListener() {
             @Override
             public void onAdClosed() {
-                Log.d("RewardedAd", "Ad closed");
+                // Handle ad closed event
             }
 
             @Override
             public void onUserEarnedReward() {
-                Log.d("RewardedAd", "Reward earned");
+                // Handle user earned reward event
             }
         });
 
@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setMediaPlaybackRequiresUserGesture(false);
         webSettings.setDomStorageEnabled(true);
         webSettings.setAllowFileAccess(true);
-        webSettings.setSupportMultipleWindows(true);
+        webSettings.setSupportMultipleWindows(true); // Changed to true for video popups
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         webSettings.setLoadsImagesAutomatically(true);
@@ -90,20 +90,7 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setAllowUniversalAccessFromFileURLs(true);
         webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 
-        webView.loadUrl("https://movie-fcs.fwh.is/cini/");
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        appOpenManager.setCurrentActivity(this);
-        appOpenManager.showAdIfAvailable();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        appOpenManager.setCurrentActivity(null);
+        webView.loadUrl("https://movie-fcs.fwh.is/cinecraze/");
     }
 
     @Override
@@ -130,7 +117,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        appOpenManager.showAdIfAvailable();
+    }
+
     public static MainActivity getInstance() {
-        return instance;
+        return (MainActivity) instance;
     }
 }
