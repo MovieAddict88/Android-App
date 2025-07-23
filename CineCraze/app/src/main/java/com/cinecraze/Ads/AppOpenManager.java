@@ -45,6 +45,10 @@ public class AppOpenManager implements LifecycleObserver {
         if (isAdAvailable()) {
             return;
         }
+        if (AdIdManager.getAppOpenAdUnitId() == null) {
+            Log.e(LOG_TAG, "App Open Ad Unit ID is null. Cannot fetch ad.");
+            return;
+        }
         loadCallback =
                 new AppOpenAd.AppOpenAdLoadCallback() {
                     @Override

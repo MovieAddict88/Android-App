@@ -28,10 +28,13 @@ public class VideoRewardAdManager {
     public VideoRewardAdManager(Context context, AdListener adListener) {
         this.context = context;
         this.adListener = adListener;
-        loadAd();
     }
 
     public void loadAd() {
+        if (AdIdManager.getRewardedVideoAdUnitId() == null) {
+            Log.e(TAG, "Rewarded Video Ad Unit ID is null. Cannot load ad.");
+            return;
+        }
         AdRequest adRequest = new AdRequest.Builder().build();
         RewardedAd.load(
                 context,
