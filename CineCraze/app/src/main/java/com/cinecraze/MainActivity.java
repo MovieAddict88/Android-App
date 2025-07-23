@@ -12,6 +12,8 @@ import com.cinecraze.Ads.AdIdManager;
 import com.cinecraze.Ads.AppOpenManager;
 import com.cinecraze.Ads.InterstitialAdManager;
 import com.cinecraze.Ads.VideoRewardAdManager;
+import android.graphics.Color;
+
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -42,14 +44,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         instance = this;
 
-        AdIdManager.loadAdIds(this);
-
-        MobileAds.initialize(this, initializationStatus -> {
-        });
-
         appOpenManager = new AppOpenManager(this);
-        appOpenManager.fetchAd();
-
         interstitialAdManager = new InterstitialAdManager(this, this::finish);
         videoRewardAdManager = new VideoRewardAdManager(this, new VideoRewardAdManager.AdListener() {
             @Override
@@ -63,9 +58,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mAdView = findViewById(R.id.adView);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
+        AdIdManager.loadAdIds(this, () -> runOnUiThread(() -> {
+            MobileAds.initialize(this, initializationStatus -> {
+            });
+
+            appOpenManager.fetchAd();
+            interstitialAdManager.loadAd();
+            videoRewardAdManager.loadAd();
+
+            mAdView = findViewById(R.id.adView);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }));
 
         // Initialize ad blocker before WebView
         AdBlocker.init(this);
@@ -91,6 +95,9 @@ public class MainActivity extends AppCompatActivity {
         webSettings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
 
         webView.loadUrl("https://movie-fcs.fwh.is/cinecraze/");
+
+        // Check for updates
+        UpdateHelper.checkForUpdate(this);
     }
 
     @Override
@@ -103,11 +110,12 @@ public class MainActivity extends AppCompatActivity {
                     .setMessage("Are you sure you want to exit?")
                     .setNegativeBtnText("Cancel")
                     .setPositiveBtnText("Exit")
-                    .setPositiveBtnBackgroundRes(R.color.colorPrimary)
-                    .setNegativeBtnBackgroundRes(R.color.colorPrimaryDark)
+                    .setPositiveBtnBackground(Color.parseColor("#D32F2F"))
+                    .setNegativeBtnBackground(Color.parseColor("#B71C1C"))
+                    .setBackgroundColorRes(R.color.dark_red)
                     .setAnimation(Animation.POP)
-                    .isCancellable(true)
-                    .setIcon(R.drawable.ic_baseline_exit_to_app_24, View.VISIBLE)
+                    .isCancellable(false)
+                    .setIcon(R.drawable.app_35, View.VISIBLE)
                     .onPositiveClicked(dialog -> interstitialAdManager.showAd(this))
                     .onNegativeClicked(dialog -> {
                         // do nothing
